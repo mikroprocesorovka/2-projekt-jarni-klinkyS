@@ -1,0 +1,264 @@
+
+*/
+
+#include "stm8s.h"
+#include "milis.h"
+#include "stm8_hd44780.h"
+
+
+void sleduj_enc (void);
+void LCD (void);
+void sleduj_tlacitko(void);
+void proces(void);
+
+
+
+int16_t hodnota=0;
+uint16_t last_time=0;
+uint8_t x=0;
+uint8_t pomocna=0;
+
+void main(void){
+CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1); // taktovat MCU na 16MHz
+init_milis();
+lcd_init();
+GPIO_Init(GPIOC,GPIO_PIN_5,GPIO_MODE_OUT_PP_LOW_SLOW);
+GPIO_Init(GPIOC,GPIO_PIN_2,GPIO_MODE_IN_FL_NO_IT); //CLK
+GPIO_Init(GPIOC,GPIO_PIN_3,GPIO_MODE_IN_FL_NO_IT); //DT
+GPIO_Init(GPIOD,GPIO_PIN_1,GPIO_MODE_IN_FL_NO_IT); //SW
+
+	while (1){
+
+		sleduj_enc();
+		LCD();
+		sleduj_tlacitko();
+			
+		
+	}
+}
+
+
+void sleduj_enc(void){
+	static minule=1;	
+	if(GPIO_ReadInputPin(GPIOC,GPIO_PIN_2) == RESET && minule==1){
+		minule = 0; 
+		if(GPIO_ReadInputPin(GPIOC,GPIO_PIN_3) != RESET){
+			if (hodnota > 0){
+				hodnota--;
+				pomocna=1;
+			}
+			else{
+				hodnota=8;
+				pomocna=1;
+			}
+		}
+		else{
+			if (hodnota <8){
+				hodnota++;
+				pomocna=1;
+			}
+			else{
+				hodnota=0;
+				pomocna=1;
+			}
+		}
+	}
+	else if (minule==0 && GPIO_ReadInputPin(GPIOC,GPIO_PIN_2) != RESET){
+		minule=1;
+		if(GPIO_ReadInputPin(GPIOC,GPIO_PIN_3) != RESET){
+			if (hodnota <8){
+				hodnota++;
+				pomocna=1;
+			}
+			else{
+				hodnota=0;
+				pomocna=1;
+			}
+		}
+		else{
+			if (hodnota > 0){
+				hodnota--;
+				pomocna=1;
+			}
+			else{
+				hodnota=8;
+				pomocna=1;
+			}
+		}
+	}
+}
+
+void LCD (void) {
+	if (hodnota==0 && pomocna==1){
+		lcd_clear();
+		lcd_gotoxy(8,0);
+		lcd_puts("1");
+		pomocna=0;
+	}
+	if (hodnota==1 && pomocna==1){
+		lcd_clear();
+		lcd_gotoxy(8,0);
+		lcd_puts("2");
+		pomocna=0;
+	}
+	if (hodnota==2 && pomocna==1){
+		lcd_clear();
+		lcd_gotoxy(8,0);
+		lcd_puts("3");
+		pomocna=0;
+	}
+	if (hodnota==3 && pomocna==1){
+		lcd_clear();
+		lcd_gotoxy(8,0);
+		lcd_puts("4");
+		pomocna=0;
+	}
+	if (hodnota==4 && pomocna==1){
+		lcd_clear();
+		lcd_gotoxy(8,0);
+		lcd_puts("5");
+		pomocna=0;
+	}
+	if (hodnota==5 && pomocna==1){
+		lcd_clear();
+		lcd_gotoxy(8,0);
+		lcd_puts("6");
+		pomocna=0;
+	}
+	if (hodnota==6 && pomocna==1){
+		lcd_clear();
+		lcd_gotoxy(8,0);
+		lcd_puts("7");
+		pomocna=0;
+	}
+	if (hodnota==7 && pomocna==1){
+		lcd_clear();
+		lcd_gotoxy(8,0);
+		lcd_puts("8");
+		pomocna=0;
+	}
+	if (hodnota==8 && pomocna==1){
+		lcd_clear();
+		lcd_gotoxy(8,0);
+		lcd_puts("9");
+		pomocna=0;
+	}
+}
+
+void sleduj_tlacitko(void){	
+	static uint8_t stav_tlac=1;
+	if(milis()-last_time>=50){
+		last_time = milis();
+		if(GPIO_ReadInputPin(GPIOD,GPIO_PIN_1)==RESET && stav_tlac==1) {
+			stav_tlac=0;
+			proces();
+		}
+		if(GPIO_ReadInputPin(GPIOD,GPIO_PIN_1)!= RESET) {
+			stav_tlac=1;
+		}
+	}
+}
+
+void proces (void){
+	if (hodnota==0){
+		while (x!=2){
+			if (milis()-last_time>=500){
+				GPIO_WriteReverse (GPIOC,GPIO_PIN_5);
+				last_time=milis();
+				x++;
+			}
+		}
+		x=0;
+	}
+	
+	else if (hodnota==1){
+		while (x!=4){
+			if (milis()-last_time>=500){
+				GPIO_WriteReverse (GPIOC,GPIO_PIN_5);
+				last_time=milis();
+				x++;
+			}
+		}
+		x=0;
+	}
+	
+	else if (hodnota==2){
+		while (x!=6){
+			if (milis()-last_time>=500){
+				GPIO_WriteReverse (GPIOC,GPIO_PIN_5);
+				last_time=milis();
+				x++;
+			}
+		}
+		x=0;
+	}
+	
+	else if (hodnota==3){
+		while (x!=8){
+			if (milis()-last_time>=500){
+				GPIO_WriteReverse (GPIOC,GPIO_PIN_5);
+				last_time=milis();
+				x++;
+			}
+		}
+		x=0;
+	}
+	
+	else if (hodnota==4){
+		while (x!=10){
+			if (milis()-last_time>=500){
+				GPIO_WriteReverse (GPIOC,GPIO_PIN_5);
+				last_time=milis();
+				x++;
+			}
+		}
+		x=0;
+	}
+	
+	else if (hodnota==5){
+		while (x!=12){
+			if (milis()-last_time>=500){
+				GPIO_WriteReverse (GPIOC,GPIO_PIN_5);
+				last_time=milis();
+				x++;
+			}
+		}
+		x=0;
+	}
+	
+	else if (hodnota==6){
+		while (x!=14){
+			if (milis()-last_time>=500){
+				GPIO_WriteReverse (GPIOC,GPIO_PIN_5);
+				last_time=milis();
+				x++;
+			}
+		}
+		x=0;
+	}
+	
+	else if (hodnota==7){
+		while (x!=16){
+			if (milis()-last_time>=500){
+				GPIO_WriteReverse (GPIOC,GPIO_PIN_5);
+				last_time=milis();
+				x++;
+			}
+		}
+		x=0;
+	}
+	
+	else if (hodnota==8){
+		while (x!=18){
+			if (milis()-last_time>=500){
+				GPIO_WriteReverse (GPIOC,GPIO_PIN_5);
+				last_time=milis();
+				x++;
+			}
+		}
+		x=0;
+	}
+}
+
+
+
